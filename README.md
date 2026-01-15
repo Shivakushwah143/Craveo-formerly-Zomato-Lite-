@@ -1,4 +1,8 @@
-.
+. <img width="1545" height="678" alt="Screenshot 2026-01-15 155252" src="https://github.com/user-attachments/assets/d8af73bd-79b5-4f36-b620-75cb8d25b3f9" />
+
+<img width="1808" height="848" alt="Screenshot 2026-01-15 155210" src="https://github.com/user-attachments/assets/e187a7bb-7b44-4649-85d0-885979f3bc76" />
+<img width="1813" height="847" alt="Screenshot 2026-01-15 154855" src="https://github.com/user-attachments/assets/c1fab379-ec1e-4fe1-adc5-78935b63b3b7" />
+
 
 🍽️ Craveo — Full-Stack Food Ordering Platform
 
