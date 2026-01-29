@@ -1844,7 +1844,7 @@
 //                 <Sparkles className="w-6 h-6 text-white" />
 //               </div>
 //               <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-//                 Zomato Lite
+//                 Craveo
 //               </h1>
 //               {isAdmin && (
 //                 <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -2189,7 +2189,7 @@
 //         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 //           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 //             <div>
-//               <h3 className="text-2xl font-bold mb-4">Zomato Lite</h3>
+//               <h3 className="text-2xl font-bold mb-4">Craveo</h3>
 //               <p className="text-gray-400">
 //                 Delivering happiness through delicious food experiences.
 //               </p>
@@ -2225,7 +2225,7 @@
 //             </div>
 //           </div>
 //           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-//             <p>&copy; 2024 Zomato Lite. All rights reserved.</p>
+//             <p>&copy; 2024 Craveo. All rights reserved.</p>
 //           </div>
 //         </div>
 //       </footer>
@@ -2252,7 +2252,7 @@
 //               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
 //                 <Sparkles className="w-8 h-8" />
 //               </div>
-//               <h1 className="text-4xl font-bold">Zomato Lite</h1>
+//               <h1 className="text-4xl font-bold">Craveo</h1>
 //             </div>
 //             <p className="text-xl opacity-90">
 //               Discover the best food around you. Order from top restaurants and get it delivered to your doorstep.
@@ -2289,7 +2289,7 @@
 //                 <Sparkles className="w-6 h-6 text-white" />
 //               </div>
 //               <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-//                 Zomato Lite
+//                 Craveo
 //               </h1>
 //             </div>
 
@@ -2594,7 +2594,7 @@ export const api = {
     // Admin
     getDashboardStats: () => api.request('/metrics'),
     getUsers: () => api.request('/admin/users'),
-    getAllOrders: () => api.request('/admin/orders'),
+    getAllOrder: () => api.request('/admin/orders'),
 
     generateEmbeddings: () =>
         api.request('/ai/generate-all-embeddings', {
@@ -4453,17 +4453,21 @@ const App: React.FC = () => {
     //     }
     // };
     const handleCheckout = (orderId: string) => {
+        orderId
         setCart([]);
         setView('orders');
         fetchOrders();
 
     };
 
+    
+    
     const handleViewDetails = (product: Product) => {
         setSelectedProduct(product);
         setIsProductModalOpen(true);
     };
 
+    
     // Get unique categories
     const categories = ['all', ...new Set(products.map(p => p.category))];
 
@@ -4521,7 +4525,7 @@ const App: React.FC = () => {
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                                Zomato Lite
+                                Craveo
                             </h1>
                             {isAdmin && (
                                 <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -4860,7 +4864,7 @@ const App: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
-                            <h3 className="text-2xl font-bold mb-4">Zomato Lite</h3>
+                            <h3 className="text-2xl font-bold mb-4">Craveo</h3>
                             <p className="text-gray-400">
                                 Delivering happiness through delicious food experiences.
                             </p>
@@ -4896,7 +4900,7 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                        <p>&copy; 2024 Zomato Lite. All rights reserved.</p>
+                        <p>&copy; 2024 Craveo. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
@@ -4923,7 +4927,7 @@ const AuthScreen: React.FC = () => {
                             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
                                 <Sparkles className="w-8 h-8" />
                             </div>
-                            <h1 className="text-4xl font-bold">Zomato Lite</h1>
+                            <h1 className="text-4xl font-bold">Craveo</h1>
                         </div>
                         <p className="text-xl opacity-90">
                             Discover the best food around you. Order from top restaurants and get it delivered to your doorstep.
@@ -4960,7 +4964,7 @@ const AuthScreen: React.FC = () => {
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                                Zomato Lite
+                                Craveo
                             </h1>
                         </div>
 
