@@ -16,15 +16,27 @@ import { User } from "../models";
 // CORS and body parsing middleware
 export const setupMiddleware = (app: Express): void => {
   app.use(express.json());
-  app.use(cors({
+app.use(cors({
     origin: [
-     'https://craveo-formerly-zomato-lite.vercel.app', 
-      "http://localhost:5173",
+        'https://craveo-formerly-zomato-lite.vercel.app', 
+        "http://localhost:5173",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  }));
+}));
+
+// 2. 🔴 ADD THIS: Handle OPTIONS requests explicitly
+app.options('*', cors({
+    origin: [
+        'https://craveo-formerly-zomato-lite.vercel.app', 
+        "http://localhost:5173",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+}));
+
 };
 
 // Multer configuration for file uploads
