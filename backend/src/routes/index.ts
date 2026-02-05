@@ -9,6 +9,8 @@ import {
   register,
   login,
   refreshToken,
+  verifyOtp,
+  resendOtp,
   
   // Products
   getProducts,
@@ -55,6 +57,8 @@ export const setupRoutes = (app: Express): void => {
   app.post("/api/auth/register", rateLimit("API"), register);
   app.post("/api/auth/login", rateLimit("LOGIN"), login);
   app.post("/api/auth/refresh", refreshToken);
+  app.post("/api/auth/verify-otp", rateLimit("API"), verifyOtp);
+  app.post("/api/auth/resend-otp", rateLimit("API"), resendOtp);
 
   // ============================================================================
   // 🍔 PRODUCT ROUTES
@@ -130,3 +134,10 @@ export const setupRoutes = (app: Express): void => {
   app.get("/api/logs/auth", authenticate, authorize("admin"), getAuthLogs);
   app.get("/api/dlq/orders", authenticate, authorize("admin"), getDLQEntries);
 };
+
+
+
+// todo
+// Add OTP resend throttling (to prevent spam)
+// Make OTP expiry configurable via .env
+// Update frontend to call verify/resend endpoints we will do it lett

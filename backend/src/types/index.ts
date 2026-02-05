@@ -12,6 +12,9 @@ export interface IUser extends Document {
   role: "customer" | "admin" | "delivery";
   phone?: string;
   address?: string;
+  emailVerified?: boolean;
+  emailOtpHash?: string;
+  emailOtpExpires?: Date;
   createdAt: Date;
 }
 
@@ -111,6 +114,15 @@ export interface RegisterRequestBody {
 export interface LoginRequestBody {
   email: string;
   password: string;
+}
+
+export interface VerifyOtpRequestBody {
+  email: string;
+  otp: string;
+}
+
+export interface ResendOtpRequestBody {
+  email: string;
 }
 
 export interface CreateProductRequestBody {

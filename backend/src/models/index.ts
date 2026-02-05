@@ -24,6 +24,9 @@ const userSchema = new Schema<IUser>({
   },
   phone: String,
   address: String,
+  emailVerified: { type: Boolean, default: false },
+  emailOtpHash: String,
+  emailOtpExpires: Date,
   createdAt: { type: Date, default: Date.now },
 });
 
