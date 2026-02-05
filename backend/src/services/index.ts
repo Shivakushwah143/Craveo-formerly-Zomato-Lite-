@@ -22,6 +22,11 @@ const emailTransporter = nodemailer.createTransport({
     user: CONFIG.EMAIL.USER,
     pass: CONFIG.EMAIL.PASS,
   },
+  // NOTE: Some hosts block outbound SMTP (Render often does).
+  // This TLS tweak sometimes helps with cert issues but won't bypass network blocks.
+  tls: {
+    rejectUnauthorized: false,
+  },
 } as nodemailer.TransportOptions);
 
 emailTransporter.verify((error: any) => {
