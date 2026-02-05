@@ -4,38 +4,22 @@
 
 import { v2 as cloudinary } from "cloudinary";
 import Razorpay from "razorpay";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 import crypto from "crypto";
 import { CONFIG } from "../config";
 import { IOrder, IUser, EmailTemplate } from "../types";
 
 // ============================================================================
-// 📧 EMAIL SERVICE
+// 📧 EMAIL SERVICE (SendGrid API)
 // ============================================================================
 
-const emailTransporter = nodemailer.createTransport({
-  service: CONFIG.EMAIL.SERVICE,
-  host: CONFIG.EMAIL.HOST,
-  port: CONFIG.EMAIL.PORT,
-  secure: CONFIG.EMAIL.PORT === 465,
-  auth: {
-    user: CONFIG.EMAIL.USER,
-    pass: CONFIG.EMAIL.PASS,
-  },
-  // NOTE: Some hosts block outbound SMTP (Render often does).
-  // This TLS tweak sometimes helps with cert issues but won't bypass network blocks.
-  tls: {
-    rejectUnauthorized: false,
-  },
-} as nodemailer.TransportOptions);
-
-emailTransporter.verify((error: any) => {
-  if (error) {
-    console.error("❌ Email configuration error:", error);
-  } else {
-    console.log("✅ Email service configured successfully");
-  }
-});
+const sendgridApiKey = process.env.SENDGRID_API_KEY;
+if (sendgridApiKey) {
+  sgMail.setApiKey(sendgridApiKey);
+  console.log("✅ SendGrid configured successfully");
+} else {
+  console.warn("⚠️ SENDGRID_API_KEY not set - email sending disabled");
+}
 
 const emailTemplates = {
   orderPlaced: (order: IOrder, user: IUser): EmailTemplate => {
@@ -159,15 +143,18 @@ const emailTemplates = {
 
 export const sendEmail = async (to: string, template: EmailTemplate): Promise<void> => {
   try {
-    const mailOptions = {
-      from: CONFIG.EMAIL.FROM,
-      to,
-      subject: template.subject,
-      html: template.html,
-      text: template.text,
-    };
+    if (!sendgridApiKey) {
+      console.warn("⚠️ Email skipped because SENDGRID_API_KEY is missing");
+      return;
+    }
 
-    await emailTransporter.sendMail(mailOptions);
+    await sgMail.send({
+      to,
+      from: CONFIG.EMAIL.FROM,
+      subject: template.subject,
+      text: template.text,
+      html: template.html,
+    });
     console.log(`✅ Email sent to: ${to}`);
   } catch (error) {
     console.error("❌ Email sending failed:", error);
