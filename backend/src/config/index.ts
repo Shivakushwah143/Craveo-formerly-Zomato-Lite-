@@ -36,7 +36,7 @@ export const CONFIG = {
     PASS: process.env.EMAIL_PASS || 'bhhaiphbziefhkbu',
     FROM: process.env.EMAIL_FROM || 'Zomato Lite <noreply@zomato-lite.com>'
   },
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000'
+  CLIENT_URL: process.env.CLIENT_URL || 'https://craveo-formerly-zomato-lite.vercel.app'
 } as const;
 
 export const GENAI_CONFIG = {
