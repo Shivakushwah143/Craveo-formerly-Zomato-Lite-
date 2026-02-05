@@ -7,7 +7,10 @@ dotenv.config();
 
 export const CONFIG = {
   PORT: process.env.PORT || 3000,
-  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/zomato",
+  MONGO_URI:
+    process.env.MONGO_URI ||
+    process.env.MONGODB_URI ||
+    "mongodb://localhost:27017/zomato",
   REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key-change-in-production",
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "refresh-secret-key",
