@@ -2501,7 +2501,7 @@ interface DashboardStats {
 // API SERVICE
 // ============================================================================
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://craveo-backend.onrender.com/api';
 
 export const api = {
     async request(endpoint: string, options: RequestInit = {}) {
