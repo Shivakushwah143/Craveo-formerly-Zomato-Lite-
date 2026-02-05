@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Kafka, Producer, Consumer } from "kafkajs";
-import { CONFIG } from "../config";
+import getKafkaConfig from "../config/kafkaConfig";
 
 class KafkaService {
   private kafka: Kafka;
@@ -11,10 +11,7 @@ class KafkaService {
   public consumer: Consumer;
 
   constructor() {
-    this.kafka = new Kafka({
-      clientId: "zomato-backend",
-      brokers: CONFIG.KAFKA_BROKERS,
-    });
+    this.kafka = new Kafka(getKafkaConfig());
 
     this.producer = this.kafka.producer();
     this.consumer = this.kafka.consumer({ groupId: "order-tracking-group" });

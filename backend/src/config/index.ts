@@ -37,8 +37,13 @@ export const CONFIG = {
 } as const;
 
 export const GENAI_CONFIG = {
-  provider: (process.env.GENAI_PROVIDER as "ollama" | "gemini") || "ollama",
-  baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
-  apiKey: process.env.GEMINI_API_KEY,
+  // provider: (process.env.GENAI_PROVIDER as "ollama" | "gemini") || "ollama",
+  // baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+  // apiKey: process.env.GEMINI_API_KEY,
+  // model: process.env.GENAI_MODEL || "llama2",
+  
+   provider: (process.env.GENAI_PROVIDER as "ollama" | "deepseek" | "groq") || "ollama",
+  baseURL: process.env.GENAI_BASE_URL || process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+  apiKey: process.env.GENAI_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.GROQ_API_KEY,
   model: process.env.GENAI_MODEL || "llama2",
 };

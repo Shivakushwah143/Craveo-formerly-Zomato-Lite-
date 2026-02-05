@@ -1,10 +1,10 @@
 // ============================================================================
 // KAFKA CONSUMER
-// ============================================================================
 
 import { Consumer } from "kafkajs";
-import { redis, cacheSet, publishEvent } from "./index";
+import { redis, cacheSet } from "../utils/index";
 import { OrderEvent } from "../types";
+
 
 export const startKafkaConsumer = async (consumer: Consumer): Promise<void> => {
   await consumer.connect();

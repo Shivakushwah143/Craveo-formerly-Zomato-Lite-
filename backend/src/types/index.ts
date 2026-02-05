@@ -231,7 +231,7 @@ export interface EmailTemplate {
 
 // GenAI Types
 export interface GenAIConfig {
-  provider: "ollama" | "gemini";
+  provider: "ollama" | "gemini" |  "deepseek" | "groq";
   baseURL: string;
   apiKey?: string;
   model: string;

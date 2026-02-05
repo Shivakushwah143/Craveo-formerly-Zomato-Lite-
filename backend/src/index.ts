@@ -7,6 +7,7 @@
 import express from "express";
 import { Kafka } from "kafkajs";
 import { CONFIG } from "./config";
+import getKafkaConfig from "./config/kafkaConfig";
 import { connectMongoDB } from "./utils/database";
 import { setupMiddleware } from "./middleware";
 import { setupRoutes } from "./routes";
@@ -16,13 +17,41 @@ import { startKafkaConsumer } from "./utils/kafka";
 const app = express();
 
 // Initialize Kafka
-export const kafka = new Kafka({
-  clientId: "zomato-backend",
-  brokers: CONFIG.KAFKA_BROKERS,
-});
+export const kafka = new Kafka(getKafkaConfig());
 
 export const producer = kafka.producer();
 export const consumer = kafka.consumer({ groupId: "order-tracking-group" });
+
+const ensureKafkaTopics = async (): Promise<void> => {
+  const admin = kafka.admin();
+  const requiredTopics = ["order-status", "eta-predictions"];
+
+  try {
+    await admin.connect();
+    const existingTopics = await admin.listTopics();
+    const topicsToCreate = requiredTopics.filter(
+      (topic) => !existingTopics.includes(topic)
+    );
+
+    if (topicsToCreate.length > 0) {
+      await admin.createTopics({
+        topics: topicsToCreate.map((topic) => ({
+          topic,
+          numPartitions: 1,
+          replicationFactor: 1,
+        })),
+      });
+      console.log(`✅ Kafka topics created: ${topicsToCreate.join(", ")}`);
+    } else {
+      console.log("✅ Kafka topics already exist");
+    }
+  } catch (error) {
+    console.error("❌ Kafka topic creation failed:", error);
+    throw error;
+  } finally {
+    await admin.disconnect();
+  }
+};
 
 // Setup middleware
 setupMiddleware(app);
@@ -34,6 +63,7 @@ setupRoutes(app);
 const startServer = async (): Promise<void> => {
   try {
     await connectMongoDB();
+    await ensureKafkaTopics();
     await producer.connect();
     console.log("✅ Kafka Producer Connected");
     await startKafkaConsumer(consumer);
