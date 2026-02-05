@@ -9,9 +9,14 @@ import crypto from "crypto";
 import { CONFIG } from "../config";
 import { IOrder, IUser, EmailTemplate } from "../types";
 
+
 // ============================================================================
 // 📧 EMAIL SERVICE (SendGrid API)
 // ============================================================================
+
+
+
+
 
 const sendgridApiKey = process.env.SENDGRID_API_KEY;
 if (sendgridApiKey) {
