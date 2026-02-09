@@ -27,7 +27,7 @@ app.use(cors({
 }));
 
 // 2. 🔴 ADD THIS: Handle OPTIONS requests explicitly
-app.options('*', cors({
+app.options('/(.*)', cors({
     origin: [
         'https://craveo-formerly-zomato-lite.vercel.app', 
         "http://localhost:5173",
