@@ -26,17 +26,6 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 }));
 
-// 2. 🔴 ADD THIS: Handle OPTIONS requests explicitly
-app.options('/(.*)', cors({
-    origin: [
-        'https://craveo-formerly-zomato-lite.vercel.app', 
-        "http://localhost:5173",
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-}));
-
 };
 
 // Multer configuration for file uploads
@@ -294,3 +283,4 @@ export const generateChatResponse = async (
     return `I found these options for you: ${dishNames}. Would you like to know more about any of these dishes?`;
   }
 };
+
