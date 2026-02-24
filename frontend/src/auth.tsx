@@ -19,9 +19,7 @@ interface AuthContextType {
     user: User | null;
     token: string | null;
     login: (email: string, password: string) => Promise<void>;
-    adminLogin: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string, address?: string) => Promise<void>;
-    adminRegister: (name: string, email: string, password: string, address?: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -48,20 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('user', JSON.stringify(data.user));
     };
 
-    const adminLogin = async (email: string, password: string) => {
-        const data = await api.adminLogin(email, password);
-        setToken(data.accessToken);
-        setUser(data.user);
-        localStorage.setItem('token', data.accessToken);
-        localStorage.setItem('user', JSON.stringify(data.user));
-    };
-
     const register = async (name: string, email: string, password: string, address?: string) => {
         await api.register(name, email, password, address);
-    };
-
-    const adminRegister = async (name: string, email: string, password: string, address?: string) => {
-        await api.adminRegister(name, email, password, address);
     };
 
     const logout = () => {
@@ -72,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, adminLogin, register, adminRegister, logout }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );
@@ -93,8 +79,7 @@ const LoginForm: React.FC<{ onSuccess: () => void; onSwitchToRegister: () => voi
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login, adminLogin } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -102,11 +87,7 @@ const LoginForm: React.FC<{ onSuccess: () => void; onSwitchToRegister: () => voi
         setLoading(true);
 
         try {
-            if (isAdmin) {
-                await adminLogin(email, password);
-            } else {
-                await login(email, password);
-            }
+            await login(email, password);
             onSuccess();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed');
@@ -153,16 +134,6 @@ const LoginForm: React.FC<{ onSuccess: () => void; onSwitchToRegister: () => voi
                     />
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                    <input
-                        type="checkbox"
-                        checked={isAdmin}
-                        onChange={(e) => setIsAdmin(e.target.checked)}
-                        className="h-4 w-4 accent-red-500"
-                    />
-                    Admin login
-                </label>
-
                 <button
                     type="submit"
                     disabled={loading}
@@ -202,8 +173,7 @@ const RegisterForm: React.FC<{ onSuccess: () => void; onSwitchToLogin: () => voi
     const [info, setInfo] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { register, login, adminRegister, adminLogin } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { register, login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -212,13 +182,6 @@ const RegisterForm: React.FC<{ onSuccess: () => void; onSwitchToLogin: () => voi
         setLoading(true);
 
         try {
-            if (isAdmin) {
-                await adminRegister(name, email, password, address);
-                await adminLogin(email, password);
-                onSuccess();
-                return;
-            }
-
             await register(name, email, password, address);
             setStep('otp');
             setInfo('OTP sent to your email. Please verify to continue.');
@@ -331,16 +294,6 @@ const RegisterForm: React.FC<{ onSuccess: () => void; onSwitchToLogin: () => voi
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
                         />
                     </div>
-
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                        <input
-                            type="checkbox"
-                            checked={isAdmin}
-                            onChange={(e) => setIsAdmin(e.target.checked)}
-                            className="h-4 w-4 accent-red-500"
-                        />
-                        Register as admin (bootstrap only)
-                    </label>
 
                     <button
                         type="submit"

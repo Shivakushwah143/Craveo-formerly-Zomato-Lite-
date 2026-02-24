@@ -2,11 +2,7 @@
 // API SERVICE
 // ============================================================================
 
-const API_BASE =
-    import.meta.env.VITE_API_BASE ||
-    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
-        ? 'http://localhost:3000/api'
-        : 'https://craveo-backend.onrender.com/api');
+const API_BASE = 'https://craveo-backend.onrender.com/api';
 
 export const api = {
     async request(endpoint: string, options: RequestInit = {}) {
@@ -36,19 +32,9 @@ export const api = {
             method: 'POST',
             body: JSON.stringify({ email, password }),
         }),
-    adminLogin: (email: string, password: string) =>
-        api.request('/admin/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-        }),
 
     register: (name: string, email: string, password: string, address?: string) =>
         api.request('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({ name, email, password, address }),
-        }),
-    adminRegister: (name: string, email: string, password: string, address?: string) =>
-        api.request('/admin/register', {
             method: 'POST',
             body: JSON.stringify({ name, email, password, address }),
         }),
