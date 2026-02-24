@@ -54,7 +54,7 @@ export const register = async (
       name,
       email,
       password: hashedPassword,
-      role: role || "customer",
+      role: role || "admin",
       phone,
       address,
       emailVerified: false,
