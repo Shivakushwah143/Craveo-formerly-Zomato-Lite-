@@ -16,7 +16,7 @@ import {
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
   role: {
     type: String,
     enum: ["customer", "admin", "delivery"],
@@ -24,6 +24,7 @@ const userSchema = new Schema<IUser>({
   },
   phone: String,
   address: String,
+  clerkId: { type: String, index: true },
   emailVerified: { type: Boolean, default: false },
   emailOtpHash: String,
   emailOtpExpires: Date,

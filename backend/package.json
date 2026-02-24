@@ -13,6 +13,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@clerk/types": "^4.101.18",
     "@sendgrid/mail": "^8.1.6",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.5",
@@ -28,6 +29,7 @@
     "express": "^5.1.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.2",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.19.3",
     "multer": "^2.0.2",

@@ -12,15 +12,13 @@ import { CONFIG } from "../config";
 import { redis, cacheGet } from "../utils";
 import { JwtPayload } from "../types";
 import { User } from "../models";
+import { ClerkUser, fetchClerkUser, verifyClerkJwt } from "../utils/clerk";
 
 // CORS and body parsing middleware
 export const setupMiddleware = (app: Express): void => {
   app.use(express.json());
 app.use(cors({
-    origin: [
-        'https://craveo-formerly-zomato-lite.vercel.app', 
-        "http://localhost:5173",
-    ],
+    origin: true, // allow all origins for now
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -57,14 +55,88 @@ export const authenticate: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const decoded = jwt.verify(token, CONFIG.JWT_SECRET) as JwtPayload;
-    req.user = decoded;
+    try {
+      const decoded = jwt.verify(token, CONFIG.JWT_SECRET) as JwtPayload;
+      req.user = decoded;
+
+      await redis.xadd(
+        "auth-activity",
+        "*",
+        "userId",
+        decoded.id,
+        "action",
+        "API_ACCESS",
+        "endpoint",
+        req.path,
+        "timestamp",
+        Date.now().toString()
+      );
+
+      next();
+      return;
+    } catch {
+      // Fallback to Clerk JWT verification
+    }
+
+    const clerkPayload = await verifyClerkJwt(token);
+    if (!clerkPayload?.sub) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+
+    const clerkUser = (await fetchClerkUser(clerkPayload.sub)) as ClerkUser | null;
+    if (!clerkUser) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+
+    const primaryEmailId = clerkUser.primary_email_address_id;
+    const primaryEmail =
+      clerkUser.email_addresses?.find((e: any) => e.id === primaryEmailId)
+        ?.email_address ||
+      clerkUser.email_addresses?.[0]?.email_address;
+
+    if (!primaryEmail) {
+      res.status(401).json({ error: "Email not available from Clerk" });
+      return;
+    }
+
+    const fullName = [clerkUser.first_name, clerkUser.last_name]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    const name = fullName || clerkUser.username || primaryEmail.split("@")[0];
+
+    let user = await User.findOne({
+      $or: [{ clerkId: clerkPayload.sub }, { email: primaryEmail }],
+    });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email: primaryEmail,
+        password: "CLERK_OAUTH",
+        role: "customer",
+        clerkId: clerkPayload.sub,
+        emailVerified: true,
+      });
+    } else if (!user.clerkId) {
+      user.clerkId = clerkPayload.sub;
+      await user.save();
+    }
+
+    req.user = {
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      address: user.address,
+    };
 
     await redis.xadd(
       "auth-activity",
       "*",
       "userId",
-      decoded.id,
+      user._id.toString(),
       "action",
       "API_ACCESS",
       "endpoint",
@@ -283,4 +355,3 @@ export const generateChatResponse = async (
     return `I found these options for you: ${dishNames}. Would you like to know more about any of these dishes?`;
   }
 };
-

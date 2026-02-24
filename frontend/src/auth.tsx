@@ -1,4 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
+import { useSignIn } from '@clerk/clerk-react';
 import { Sparkles, Truck, Shield, Star } from 'lucide-react';
 import { api } from './api';
 
@@ -372,6 +373,17 @@ const RegisterForm: React.FC<{ onSuccess: () => void; onSwitchToLogin: () => voi
 
 export const AuthScreen: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [activeTab, setActiveTab] = useState<'google' | 'email'>('google');
+    const { signIn, isLoaded } = useSignIn();
+
+    const handleGoogleSignIn = async () => {
+        if (!isLoaded) return;
+        await signIn.authenticateWithRedirect({
+            strategy: 'oauth_google',
+            redirectUrl: window.location.origin,
+            redirectUrlComplete: window.location.origin,
+        });
+    };
 
     return (
         <div className="min-h-screen bg-linear-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
@@ -424,7 +436,40 @@ export const AuthScreen: React.FC = () => {
                             </h1>
                         </div>
 
-                        {isLogin ? (
+                        <div className="grid grid-cols-2 gap-2 mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('google')}
+                                className={`py-2 rounded-lg font-semibold transition border ${
+                                    activeTab === 'google'
+                                        ? 'bg-red-500 text-white border-red-500'
+                                        : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                Google
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('email')}
+                                className={`py-2 rounded-lg font-semibold transition border ${
+                                    activeTab === 'email'
+                                        ? 'bg-red-500 text-white border-red-500'
+                                        : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                Email
+                            </button>
+                        </div>
+
+                        {activeTab === 'google' ? (
+                            <button
+                                type="button"
+                                onClick={handleGoogleSignIn}
+                                className="w-full mb-6 bg-white border border-gray-300 text-gray-900 py-3 rounded-lg hover:bg-gray-50 font-semibold transition shadow-sm"
+                            >
+                                Continue with Google
+                            </button>
+                        ) : isLogin ? (
                             <LoginForm
                                 onSuccess={() => { }}
                                 onSwitchToRegister={() => setIsLogin(false)}

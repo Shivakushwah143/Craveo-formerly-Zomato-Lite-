@@ -8,10 +8,11 @@ export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: "customer" | "admin" | "delivery";
   phone?: string;
   address?: string;
+  clerkId?: string;
   emailVerified?: boolean;
   emailOtpHash?: string;
   emailOtpExpires?: Date;

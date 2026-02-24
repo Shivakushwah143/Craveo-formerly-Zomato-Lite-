@@ -4,9 +4,22 @@
 
 const API_BASE = 'https://craveo-backend.onrender.com/api';
 
+type TokenProvider = (() => Promise<string | null>) | null;
+let tokenProvider: TokenProvider = null;
+
+export const setTokenProvider = (provider: TokenProvider) => {
+    tokenProvider = provider;
+};
+
 export const api = {
     async request(endpoint: string, options: RequestInit = {}) {
-        const token = localStorage.getItem('token');
+        let token: string | null = null;
+        if (tokenProvider) {
+            token = await tokenProvider();
+        }
+        if (!token) {
+            token = localStorage.getItem('token');
+        }
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
             ...(token && { Authorization: `Bearer ${token}` }),
