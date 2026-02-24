@@ -14,10 +14,7 @@ export const CONFIG = {
   REDIS_URL: process.env.REDIS_URL || "rediss://default:AbT5AAIncDI5ZWQ0ZmIzMzM3ODc0NmYwOTUxMTRkZTM4OTgwM2I5OHAyNDYzMjk@obliging-kitten-46329.upstash.io:6379",
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key-change-in-production",
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "refresh-secret-key",
-  KAFKA_BROKERS: process.env.KAFKA_BROKERS
-    ? process.env.KAFKA_BROKERS.split(",")
-    : ["kafka-358624a3-shivakushwah144-c207.h.aivencloud.com:10920"],
-  KAFKA_ENABLED: process.env.KAFKA_ENABLED === "true",
+  KAFKA_BROKERS: (process.env.KAFKA_BROKERS || "localhost:9092").split(","),
   RATE_LIMIT: {
     LOGIN: 5,
     ORDER: 10,

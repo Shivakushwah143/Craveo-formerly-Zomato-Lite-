@@ -5,29 +5,25 @@
 // ============================================================================
 
 import express from "express";
+import { Kafka } from "kafkajs";
 import { CONFIG } from "./config";
 import getKafkaConfig from "./config/kafkaConfig";
 import { connectMongoDB } from "./utils/database";
 import { setupMiddleware } from "./middleware";
 import { setupRoutes } from "./routes";
 import { startKafkaConsumer } from "./utils/kafka";
-import { Kafka } from "kafkajs";
 
 // Initialize Express app
 const app = express();
 
-// Initialize Kafka (disabled by default; enable with KAFKA_ENABLED=true)
-const KAFKA_ENABLED = CONFIG.KAFKA_ENABLED;
-export const kafka = KAFKA_ENABLED ? new Kafka(getKafkaConfig()) : null;
+// Initialize Kafka
+export const kafka = new Kafka(getKafkaConfig());
 
-export const producer = KAFKA_ENABLED ? kafka!.producer() : null;
-export const consumer = KAFKA_ENABLED
-  ? kafka!.consumer({ groupId: "order-tracking-group" })
-  : null;
+export const producer = kafka.producer();
+export const consumer = kafka.consumer({ groupId: "order-tracking-group" });
 
 const ensureKafkaTopics = async (): Promise<void> => {
-  if (!KAFKA_ENABLED) return;
-  const admin = kafka!.admin();
+  const admin = kafka.admin();
   const requiredTopics = ["order-status", "eta-predictions"];
 
   try {
@@ -67,14 +63,10 @@ setupRoutes(app);
 const startServer = async (): Promise<void> => {
   try {
     await connectMongoDB();
-    if (KAFKA_ENABLED) {
-      await ensureKafkaTopics();
-      await producer!.connect();
-      console.log("✅ Kafka Producer Connected");
-      await startKafkaConsumer(consumer!);
-    } else {
-      console.warn("⚠️  Kafka disabled (KAFKA_ENABLED=false)");
-    }
+    await ensureKafkaTopics();
+    await producer.connect();
+    console.log("✅ Kafka Producer Connected");
+    await startKafkaConsumer(consumer);
     
     // Check AI configuration
     console.log(`🧠 GenAI Provider: ${process.env.GENAI_PROVIDER || 'ollama'}`);
@@ -87,7 +79,7 @@ const startServer = async (): Promise<void> => {
       console.log(`📍 Health Check: http://localhost:${CONFIG.PORT}/health`);
       console.log(`📊 MongoDB: ${CONFIG.MONGO_URI}`);
       console.log(`💾 Redis: ${CONFIG.REDIS_URL}`);
-      console.log(`📡 Kafka: ${KAFKA_ENABLED ? CONFIG.KAFKA_BROKERS.join(', ') : "disabled"}`);
+      console.log(`📡 Kafka: ${CONFIG.KAFKA_BROKERS.join(', ')}`);
       console.log(`🧠 AI Features: Enabled (${process.env.GENAI_PROVIDER || 'ollama'})`);
     });
   } catch (error) {
@@ -99,8 +91,8 @@ const startServer = async (): Promise<void> => {
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   console.log("🛑 SIGTERM received, shutting down gracefully...");
-  if (producer) await producer.disconnect();
-  if (consumer) await consumer.disconnect();
+  await producer.disconnect();
+  await consumer.disconnect();
   process.exit(0);
 });
 

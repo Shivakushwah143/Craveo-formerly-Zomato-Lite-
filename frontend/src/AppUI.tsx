@@ -1633,7 +1633,7 @@ export const AppUI: React.FC = () => {
                         <div className="hidden md:flex items-center gap-4">
                             <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-xl">
                                 <User className="w-4 h-4 text-gray-600" />
-                                <span className="font-medium text-gray-700">{user?.name ?? 'Guest' }</span>
+                                <span className="font-medium text-gray-700">{user.name }</span>
                                 {isAdmin && (
                                     <Shield className="w-4 h-4 text-red-500" />
                                 )}

@@ -5,7 +5,7 @@ import fs from 'fs';
 function getKafkaConfig(): KafkaConfig {
   const brokers = process.env.KAFKA_BROKERS
     ? process.env.KAFKA_BROKERS.split(',')
-    : ['kafka-358624a3-shivakushwah144-c207.h.aivencloud.com:10920'];
+    : ['localhost:9092'];
 
   const sslEnabled = process.env.KAFKA_SSL === 'true';
   let sslConfig: KafkaConfig['ssl'] = undefined;
