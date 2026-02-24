@@ -100,6 +100,61 @@ export const register = async (
   }
 };
 
+// Admin-only user creation without OTP flow
+export const adminRegisterUser = async (
+  req: Request<{}, {}, RegisterRequestBody>,
+  res: Response
+): Promise<void> => {
+  try {
+    const { name, email, password, role, phone, address } = req.body;
+
+    if (!name || !email || !password) {
+      res.status(400).json({ error: "Name, email, and password required" });
+      return;
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "customer",
+      phone,
+      address,
+      emailVerified: true,
+      emailOtpHash: undefined,
+      emailOtpExpires: undefined,
+    });
+
+    await user.save();
+
+    await redis.xadd(
+      "auth-activity",
+      "*",
+      "userId",
+      user._id.toString(),
+      "action",
+      "ADMIN_CREATE_USER",
+      "timestamp",
+      Date.now().toString()
+    );
+
+    res.status(201).json({
+      message: "User created by admin.",
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Admin register error:", error);
+    res.status(500).json({ error: "Admin user creation failed" });
+  }
+};
+
 export const verifyOtp = async (
   req: Request<{}, {}, VerifyOtpRequestBody>,
   res: Response

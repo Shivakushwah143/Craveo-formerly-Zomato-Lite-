@@ -7,6 +7,7 @@ import { authenticate, authorize, rateLimit,   upload } from "../middleware";
 import {
   // Auth
   register,
+  adminRegisterUser,
   login,
   refreshToken,
   verifyOtp,
@@ -133,6 +134,13 @@ export const setupRoutes = (app: Express): void => {
   app.get("/api/metrics", authenticate, authorize("admin"), getMetrics);
   app.get("/api/logs/auth", authenticate, authorize("admin"), getAuthLogs);
   app.get("/api/dlq/orders", authenticate, authorize("admin"), getDLQEntries);
+  app.post(
+    "/api/admin/users",
+    authenticate,
+    authorize("admin"),
+    rateLimit("API"),
+    adminRegisterUser
+  );
 };
 
 
