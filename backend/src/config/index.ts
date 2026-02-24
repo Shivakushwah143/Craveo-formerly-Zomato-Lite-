@@ -11,7 +11,7 @@ export const CONFIG = {
     process.env.MONGO_URI ||
     process.env.MONGODB_URI ||
     "mongodb://localhost:27017/zomato",
-  REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+  REDIS_URL: process.env.REDIS_URL || "rediss://default:AbT5AAIncDI5ZWQ0ZmIzMzM3ODc0NmYwOTUxMTRkZTM4OTgwM2I5OHAyNDYzMjk@obliging-kitten-46329.upstash.io:6379",
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key-change-in-production",
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "refresh-secret-key",
   KAFKA_BROKERS: (process.env.KAFKA_BROKERS || "localhost:9092").split(","),

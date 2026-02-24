@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CreditCard, Loader } from 'lucide-react';
-import { api } from '../App';
+import { api } from '../api';
 import { loadRazorpay } from '../utils/razorpay';
-import { useAuth } from '../App';
+import { useAuth } from '../auth';
 
 interface PaymentButtonProps {
   orderId: string;
