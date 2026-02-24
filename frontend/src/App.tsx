@@ -23,7 +23,11 @@ const ClerkTokenBridge: React.FC = () => {
 
 const App: React.FC = () => {
     const { user } = useAuth();
-    const { isSignedIn } = useClerkAuth();
+    const { isSignedIn, isLoaded } = useClerkAuth();
+
+    if (!isLoaded) {
+        return null;
+    }
 
     if (!user && !isSignedIn) {
         return <AuthScreen />;

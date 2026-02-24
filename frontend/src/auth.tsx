@@ -380,8 +380,8 @@ export const AuthScreen: React.FC = () => {
         if (!isLoaded) return;
         await signIn.authenticateWithRedirect({
             strategy: 'oauth_google',
-            redirectUrl: window.location.origin,
-            redirectUrlComplete: window.location.origin,
+            redirectUrl: `${window.location.origin}/`,
+            redirectUrlComplete: `${window.location.origin}/`,
         });
     };
 
