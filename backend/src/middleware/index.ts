@@ -19,6 +19,7 @@ export const setupMiddleware = (app: Express): void => {
 app.use(cors({
     origin: [
         'https://craveo-formerly-zomato-lite.vercel.app', 
+        'https://craveolite.vercel.app',
         "http://localhost:5173",
     ],
     credentials: true,
