@@ -54,7 +54,7 @@ export const register = async (
       name,
       email,
       password: hashedPassword,
-      role: role || "admin",
+      role: role || "customer",
       phone,
       address,
       emailVerified: false,
@@ -152,6 +152,67 @@ export const adminRegisterUser = async (
   } catch (error) {
     console.error("Admin register error:", error);
     res.status(500).json({ error: "Admin user creation failed" });
+  }
+};
+
+// Simple admin registration without OTP (bootstrap-only)
+export const adminRegister = async (
+  req: Request<{}, {}, RegisterRequestBody>,
+  res: Response
+): Promise<void> => {
+  try {
+    const { name, email, password, phone, address } = req.body;
+
+    if (!name || !email || !password) {
+      res.status(400).json({ error: "Name, email, and password required" });
+      return;
+    }
+
+    const existingAdmin = await User.findOne({ role: "admin" });
+    if (existingAdmin) {
+      res.status(403).json({ error: "Admin already exists" });
+      return;
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: "admin",
+      phone,
+      address,
+      emailVerified: true,
+      emailOtpHash: undefined,
+      emailOtpExpires: undefined,
+    });
+
+    await user.save();
+
+    await redis.xadd(
+      "auth-activity",
+      "*",
+      "userId",
+      user._id.toString(),
+      "action",
+      "ADMIN_REGISTER",
+      "timestamp",
+      Date.now().toString()
+    );
+
+    res.status(201).json({
+      message: "Admin registered successfully.",
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Admin register error:", error);
+    res.status(500).json({ error: "Admin registration failed" });
   }
 };
 
@@ -327,6 +388,80 @@ export const login = async (
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
+  }
+};
+
+export const adminLogin = async (
+  req: Request<{}, {}, LoginRequestBody>,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+
+    if (user.role !== "admin") {
+      res.status(403).json({ error: "Admin access only" });
+      return;
+    }
+
+    if (user.emailVerified === false) {
+      res.status(403).json({ error: "Email not verified" });
+      return;
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id.toString(), email: user.email, role: user.role },
+      CONFIG.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id.toString() },
+      CONFIG.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    await cacheSet<CacheSession>(
+      `user:${user._id}:session`,
+      { accessToken, refreshToken },
+      3600
+    );
+
+    await redis.xadd(
+      "auth-activity",
+      "*",
+      "userId",
+      user._id.toString(),
+      "action",
+      "ADMIN_LOGIN",
+      "timestamp",
+      Date.now().toString()
+    );
+
+    res.json({
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ error: "Admin login failed" });
   }
 };
 

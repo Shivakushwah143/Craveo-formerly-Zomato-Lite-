@@ -8,7 +8,9 @@ import {
   // Auth
   register,
   adminRegisterUser,
+  adminRegister,
   login,
+  adminLogin,
   refreshToken,
   verifyOtp,
   resendOtp,
@@ -60,6 +62,9 @@ export const setupRoutes = (app: Express): void => {
   app.post("/api/auth/refresh", refreshToken);
   app.post("/api/auth/verify-otp", rateLimit("API"), verifyOtp);
   app.post("/api/auth/resend-otp", rateLimit("API"), resendOtp);
+  // Simple admin auth (bootstrap-only register)
+  app.post("/api/admin/register", rateLimit("API"), adminRegister);
+  app.post("/api/admin/login", rateLimit("LOGIN"), adminLogin);
 
   // ============================================================================
   // 🍔 PRODUCT ROUTES

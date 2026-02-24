@@ -63,11 +63,14 @@ export const cacheInvalidate = async (pattern: string): Promise<void> => {
 // ============================================================================
 
 export const publishEvent = async (
-  producer: Producer,
+  producer: Producer | null,
   topic: string,
   event: SystemEvent
 ): Promise<void> => {
   try {
+    if (!producer) {
+      return;
+    }
     let key: string;
     
     if ('orderId' in event && 'status' in event) {
