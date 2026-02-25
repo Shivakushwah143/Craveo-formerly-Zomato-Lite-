@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Express } from "express";
-import { authenticate, authorize, rateLimit,   upload } from "../middleware";
+import { authenticate, authorize, rateLimit, upload, optionalAuthenticate } from "../middleware";
 import {
   // Auth
   register,
@@ -34,6 +34,7 @@ import {
   // AI
   getAIRecommendations,
   chatWithAI,
+  chatWithAssistant,
   generateAllEmbeddings,
   getETAAnalytics,
   
@@ -117,6 +118,7 @@ export const setupRoutes = (app: Express): void => {
   // ============================================================================
   app.get("/api/ai/recommendations", authenticate, rateLimit("API"), getAIRecommendations);
   app.post("/api/ai/chat", authenticate, rateLimit("API"), chatWithAI);
+  app.post("/api/assistant/chat", optionalAuthenticate, rateLimit("API"), chatWithAssistant);
   app.post(
     "/api/ai/generate-all-embeddings",
     authenticate,

@@ -151,6 +151,83 @@ export const authenticate: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const optionalAuthenticate: RequestHandler = async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    next();
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, CONFIG.JWT_SECRET) as JwtPayload;
+    req.user = decoded;
+    next();
+    return;
+  } catch {
+    // Fallback to Clerk JWT verification
+  }
+
+  try {
+    const clerkPayload = await verifyClerkJwt(token);
+    if (!clerkPayload?.sub) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+
+    const clerkUser = (await fetchClerkUser(clerkPayload.sub)) as ClerkUser | null;
+    if (!clerkUser) {
+      res.status(401).json({ error: "Invalid token" });
+      return;
+    }
+
+    const primaryEmailId = clerkUser.primary_email_address_id;
+    const primaryEmail =
+      clerkUser.email_addresses?.find((e: any) => e.id === primaryEmailId)
+        ?.email_address ||
+      clerkUser.email_addresses?.[0]?.email_address;
+
+    if (!primaryEmail) {
+      res.status(401).json({ error: "Email not available from Clerk" });
+      return;
+    }
+
+    const fullName = [clerkUser.first_name, clerkUser.last_name]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    const name = fullName || clerkUser.username || primaryEmail.split("@")[0];
+
+    let user = await User.findOne({
+      $or: [{ clerkId: clerkPayload.sub }, { email: primaryEmail }],
+    });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email: primaryEmail,
+        password: "CLERK_OAUTH",
+        role: "customer",
+        clerkId: clerkPayload.sub,
+        emailVerified: true,
+      });
+    } else if (!user.clerkId) {
+      user.clerkId = clerkPayload.sub;
+      await user.save();
+    }
+
+    req.user = {
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      address: user.address,
+    };
+
+    next();
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
 export const authorize = (...roles: string[]): RequestHandler => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

@@ -7,4 +7,5 @@ export * from "./productController";
 export * from "./orderController";
 export * from "./paymentController";
 export * from "./aiController";
+export * from "./assistantController";
 export * from "./adminController";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { useSignIn } from '@clerk/clerk-react';
+import { useSignIn, useAuth as useClerkAuth, useUser } from '@clerk/clerk-react';
 import { Sparkles, Truck, Shield, Star } from 'lucide-react';
 import { api } from './api';
 
@@ -33,11 +33,31 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const clerkAuth = useClerkAuth();
+    const { user: clerkUser } = useUser();
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) setUser(JSON.parse(savedUser));
     }, []);
+
+    useEffect(() => {
+        if (!clerkUser) return;
+
+        const email = clerkUser.primaryEmailAddress?.emailAddress || '';
+        const name =
+            clerkUser.fullName ||
+            clerkUser.username ||
+            email.split('@')[0] ||
+            'User';
+
+        setUser({
+            id: clerkUser.id,
+            name,
+            email,
+            role: 'customer',
+        });
+    }, [clerkUser]);
 
     const login = async (email: string, password: string) => {
         const data = await api.login(email, password);
@@ -52,6 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
+        if (clerkAuth.isSignedIn) {
+            clerkAuth.signOut();
+        }
         setUser(null);
         setToken(null);
         localStorage.removeItem('token');
@@ -373,23 +396,23 @@ const RegisterForm: React.FC<{ onSuccess: () => void; onSwitchToLogin: () => voi
 
 export const AuthScreen: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [activeTab, setActiveTab] = useState<'google' | 'email'>('google');
+    const [activeTab, setActiveTab] = useState<'google' | 'email'>('email');
     const { signIn, isLoaded } = useSignIn();
 
     const handleGoogleSignIn = async () => {
         if (!isLoaded) return;
         await signIn.authenticateWithRedirect({
             strategy: 'oauth_google',
-            redirectUrl: `${window.location.origin}/`,
+            redirectUrl: `${window.location.origin}/sso-callback`,
             redirectUrlComplete: `${window.location.origin}/`,
         });
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
-            <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-emerald-50 flex items-center justify-center p-4">
+            <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden fade-rise">
                 {/* Left Side - Branding */}
-                <div className="bg-linear-to-br from-red-500 to-orange-500 p-8 lg:p-12 text-white hidden lg:flex flex-col justify-center">
+                <div className="bg-linear-to-br from-emerald-600 to-teal-500 p-8 lg:p-12 text-white hidden lg:flex flex-col justify-center">
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
@@ -398,26 +421,26 @@ export const AuthScreen: React.FC = () => {
                             <h1 className="text-4xl font-bold">Craveo</h1>
                         </div>
                         <p className="text-xl opacity-90">
-                            Discover the best food around you. Order from top restaurants and get it delivered to your doorstep.
+                            Premium delivery for people who care about what they eat.
                         </p>
                         <div className="space-y-4 mt-8">
                             <div className="flex items-center gap-3 text-white/90">
                                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                                     <Truck className="w-4 h-4" />
                                 </div>
-                                <span>Fast delivery in 30 minutes</span>
+                                <span>Clear delivery windows, no guessing</span>
                             </div>
                             <div className="flex items-center gap-3 text-white/90">
                                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                                     <Shield className="w-4 h-4" />
                                 </div>
-                                <span>100% food safety guaranteed</span>
+                                <span>Careful handling from kitchen to door</span>
                             </div>
                             <div className="flex items-center gap-3 text-white/90">
                                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                                     <Star className="w-4 h-4" />
                                 </div>
-                                <span>Rated 4.8+ by thousands</span>
+                                <span>Highly rated by returning customers</span>
                             </div>
                         </div>
                     </div>
@@ -428,10 +451,10 @@ export const AuthScreen: React.FC = () => {
                     <div className="w-full max-w-md">
                         {/* Mobile Logo */}
                         <div className="lg:hidden flex items-center gap-3 mb-8">
-                            <div className="w-12 h-12 bg-linear-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                            <div className="w-12 h-12 bg-linear-to-r from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center">
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
-                            <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
                                 Craveo
                             </h1>
                         </div>
@@ -442,7 +465,7 @@ export const AuthScreen: React.FC = () => {
                                 onClick={() => setActiveTab('google')}
                                 className={`py-2 rounded-lg font-semibold transition border ${
                                     activeTab === 'google'
-                                        ? 'bg-red-500 text-white border-red-500'
+                                        ? 'brand-bg border-red-500'
                                         : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                                 }`}
                             >
@@ -453,7 +476,7 @@ export const AuthScreen: React.FC = () => {
                                 onClick={() => setActiveTab('email')}
                                 className={`py-2 rounded-lg font-semibold transition border ${
                                     activeTab === 'email'
-                                        ? 'bg-red-500 text-white border-red-500'
+                                        ? 'brand-bg border-red-500'
                                         : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                                 }`}
                             >

@@ -9,7 +9,8 @@ import {
   IOrder, 
   IProductEmbedding, 
   IETAHistory, 
-  IPayment 
+  IPayment,
+  IAssistantMessage
 } from "../types";
 
 // User Schema
@@ -112,6 +113,14 @@ const paymentSchema = new Schema<IPayment>({
   updatedAt: { type: Date, default: Date.now },
 });
 
+// Assistant Chat Message Schema
+const assistantMessageSchema = new Schema<IAssistantMessage>({
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+  role: { type: String, enum: ["user", "assistant"], required: true },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Create and export models
 export const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 export const Product: Model<IProduct> = mongoose.model<IProduct>("Product", productSchema);
@@ -119,3 +128,4 @@ export const Order: Model<IOrder> = mongoose.model<IOrder>("Order", orderSchema)
 export const ProductEmbeddingModel: Model<IProductEmbedding> = mongoose.model<IProductEmbedding>("ProductEmbedding", productEmbeddingSchema);
 export const ETAHistoryModel: Model<IETAHistory> = mongoose.model<IETAHistory>("ETAHistory", etaHistorySchema);
 export const Payment: Model<IPayment> = mongoose.model<IPayment>("Payment", paymentSchema);
+export const AssistantMessage: Model<IAssistantMessage> = mongoose.model<IAssistantMessage>("AssistantMessage", assistantMessageSchema);

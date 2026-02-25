@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { SignedIn, SignedOut, UserButton, useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { AuthenticateWithRedirectCallback, SignedIn, SignedOut, UserButton, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { AppUI } from './AppUI';
 import { AuthProvider, useAuth, AuthScreen } from './auth';
 import { setTokenProvider } from './api';
@@ -29,6 +29,14 @@ const App: React.FC = () => {
         return null;
     }
 
+    if (window.location.pathname === '/sso-callback') {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-red-50 to-orange-50 flex items-center justify-center p-6">
+                <AuthenticateWithRedirectCallback />
+            </div>
+        );
+    }
+
     if (!user && !isSignedIn) {
         return <AuthScreen />;
     }
@@ -36,7 +44,7 @@ const App: React.FC = () => {
     return (
         <>
             <SignedIn>
-                <div className="fixed top-4 right-4 z-50">
+                <div className="hidden md:block fixed top-4 right-4 z-50">
                     <UserButton />
                 </div>
             </SignedIn>

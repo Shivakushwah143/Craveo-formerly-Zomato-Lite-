@@ -1,42 +1,273 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+  --ink: #0f172a;
+  --muted: #5b6474;
+  --paper: #f6f2ed;
+  --card: #ffffff;
+  --line: #e6e0d7;
+  --brand: #0f766e;
+  --brand-strong: #0b4f4a;
+  --brand-soft: #e0f2f1;
+  --brand-ring: rgba(15, 118, 110, 0.25);
+  --accent: #b45309;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "Manrope", system-ui, -apple-system, Segoe UI, sans-serif;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Fraunces", "Manrope", system-ui, -apple-system, Segoe UI, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+p {
+  color: var(--muted);
+}
+
+.craveo-app {
+  min-height: 100vh;
+  background:
+    radial-gradient(1000px 500px at 10% -10%, rgba(15, 118, 110, 0.12), transparent 60%),
+    radial-gradient(800px 400px at 90% 0%, rgba(180, 83, 9, 0.10), transparent 55%),
+    var(--paper);
+}
+
+.nav-blur {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+
+.card-base {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
+  border-color: rgba(15, 118, 110, 0.25);
+}
+
+.brand-bg {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.brand-text {
+  color: var(--brand);
+}
+
+.brand-border {
+  border-color: var(--brand);
+}
+
+.brand-soft {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.hover-brand-text:hover {
+  color: var(--brand);
+}
+
+.hover-brand-soft:hover {
+  background: var(--brand-soft);
+}
+
+.hover-brand-bg:hover {
+  background: var(--brand-strong);
+  color: #ffffff;
+}
+
+.focus-brand:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-ring);
+}
+
+.btn-base {
+  border-radius: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.press {
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.press:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.input-base {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.logo-mark {
+  background: linear-gradient(135deg, var(--brand), #12a594);
+}
+
+.price-chip {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--brand);
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #eef2f3 25%, #f8fafc 37%, #eef2f3 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
   }
-  to {
-    transform: rotate(360deg);
+  100% {
+    background-position: 0 0;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+.fade-rise {
+  animation: fade-rise 0.45s ease both;
+}
+
+@keyframes fade-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.card {
-  padding: 2em;
+.typing-dots {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
 }
 
-.read-the-docs {
-  color: #888;
+.typing-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #a6b0bd;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.16s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes typing-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50% { transform: translateY(-3px); opacity: 0.85; }
+}
+
+.stagger > * {
+  animation: fade-rise 0.5s ease both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-rise,
+  .stagger > * {
+    animation: none !important;
+  }
+  .card-hover,
+  .press {
+    transition: none !important;
+  }
+}
+
+/* Override legacy red/orange utilities to brand system */
+.bg-red-500 {
+  background-color: var(--brand) !important;
+}
+.text-red-500 {
+  color: var(--brand) !important;
+}
+.border-red-500 {
+  border-color: var(--brand) !important;
+}
+.bg-red-50 {
+  background-color: rgba(15, 118, 110, 0.08) !important;
+}
+.from-red-500 {
+  --tw-gradient-from: var(--brand) !important;
+  --tw-gradient-to: rgba(15, 118, 110, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-orange-500 {
+  --tw-gradient-to: #14b8a6 !important;
+}
+.from-red-50 {
+  --tw-gradient-from: rgba(15, 118, 110, 0.12) !important;
+  --tw-gradient-to: rgba(15, 118, 110, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-orange-50 {
+  --tw-gradient-to: rgba(20, 184, 166, 0.12) !important;
+}
+.hover\\:text-red-500:hover {
+  color: var(--brand) !important;
+}
+.hover\\:bg-red-50:hover {
+  background-color: rgba(15, 118, 110, 0.12) !important;
+}
+.hover\\:border-red-500:hover {
+  border-color: var(--brand) !important;
+}
+.focus\\:ring-red-500:focus {
+  --tw-ring-color: var(--brand-ring) !important;
+}
+.focus\\:border-red-500:focus {
+  border-color: var(--brand) !important;
 }

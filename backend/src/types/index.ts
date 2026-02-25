@@ -89,6 +89,14 @@ export interface IPayment extends Document {
   updatedAt: Date;
 }
 
+export interface IAssistantMessage extends Document {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: Date;
+}
+
 // JWT & Authentication Types
 export interface JwtPayload {
   id: string;

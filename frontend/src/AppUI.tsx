@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { api } from './api';
 import { useAuth } from './auth';
+import { AssistantChat } from './components/AssistantChat';
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -736,44 +737,41 @@ const ProductCard: React.FC<{
     const [isFavorite, setIsFavorite] = useState(false);
 
     const spiceLevelColors = {
-        'Mild': 'bg-green-100 text-green-800',
-        'Medium': 'bg-yellow-100 text-yellow-800',
+        'Mild': 'bg-emerald-100 text-emerald-800',
+        'Medium': 'bg-amber-100 text-amber-800',
         'Spicy': 'bg-orange-100 text-orange-800',
-        'Very Spicy': 'bg-red-100 text-red-800'
+        'Very Spicy': 'bg-rose-100 text-rose-800'
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-red-100 group">
-            <div className="relative overflow-hidden">
+        <div className="card-base card-hover overflow-hidden group grid grid-cols-[140px_1fr]">
+            <div className="relative overflow-hidden h-full">
                 <img
                     src={product.imageUrls[0] || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop'}
                     alt={product.name}
-                    className={`w-full h-48 object-cover transition duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+                    className={`w-full h-full min-h-[140px] object-cover transition duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'
                         }`}
                     onLoad={() => setImageLoaded(true)}
                 />
                 {!imageLoaded && (
-                    <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                    <div className="absolute inset-0 shimmer" />
                 )}
 
-                {/* Favorite Button */}
                 <button
                     onClick={() => setIsFavorite(!isFavorite)}
-                    className={`absolute top-3 right-3 p-2 rounded-full transition ${isFavorite
-                        ? 'bg-red-500 text-white'
-                        : 'bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
+                    className={`absolute top-3 right-3 p-2 rounded-full border border-white/70 shadow-sm transition ${isFavorite
+                        ? 'brand-bg'
+                        : 'bg-white/90 text-gray-600 hover-brand-text'
                         }`}
                 >
                     <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
 
-                {/* Rating Badge */}
                 <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     {product.rating.toFixed(1)}
                 </div>
 
-                {/* Spice Level */}
                 {product.spiceLevel && (
                     <div className={`absolute bottom-3 left-3 px-2 py-1 rounded-full text-xs font-medium ${spiceLevelColors[product.spiceLevel]}`}>
                         {product.spiceLevel}
@@ -781,36 +779,44 @@ const ProductCard: React.FC<{
                 )}
             </div>
 
-            <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{product.name}</h3>
-                    <span className="text-lg font-bold text-red-500">₹{product.price}</span>
+            <div className="p-4 flex flex-col gap-3 min-w-0">
+                <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                        <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">{product.name}</h3>
+                        <p className="text-xs uppercase tracking-widest text-gray-500 mt-1">{product.category}</p>
+                    </div>
+                    <span className="price-chip">₹{product.price}</span>
                 </div>
 
-                <p className="text-sm text-gray-500 mb-2 capitalize">{product.category}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                    {product.spiceLevel && (
+                        <span className={`chip ${spiceLevelColors[product.spiceLevel]}`}>
+                            {product.spiceLevel}
+                        </span>
+                    )}
+                    {product.preparationTime && (
+                        <span className="chip bg-slate-100 text-slate-600">
+                            <Clock4 className="w-3 h-3" />
+                            {product.preparationTime} min
+                        </span>
+                    )}
+                </div>
 
                 {product.description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
                 )}
 
-                {product.preparationTime && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
-                        <Clock4 className="w-3 h-3" />
-                        {product.preparationTime} min
-                    </div>
-                )}
-
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto">
                     <button
                         onClick={() => onViewDetails(product)}
-                        className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-red-500 hover:text-red-500 transition font-medium"
+                        className="btn-base press flex-1 border border-gray-200 text-gray-700 px-4 py-2 hover-brand-text hover-brand-soft transition"
                     >
-                        View Details
+                        View
                     </button>
                     <button
                         onClick={() => onAddToCart(product)}
                         disabled={!product.isAvailable}
-                        className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition font-medium flex items-center justify-center gap-2"
+                        className="btn-base press flex-1 brand-bg hover-brand-bg px-4 py-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                     >
                         <Plus className="w-4 h-4" />
                         Add
@@ -833,19 +839,22 @@ const ProductModal: React.FC<{
     if (!isOpen || !product) return null;
 
     const spiceLevelColors = {
-        'Mild': 'bg-green-100 text-green-800 border-green-200',
-        'Medium': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        'Mild': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        'Medium': 'bg-amber-100 text-amber-800 border-amber-200',
         'Spicy': 'bg-orange-100 text-orange-800 border-orange-200',
-        'Very Spicy': 'bg-red-100 text-red-800 border-red-200'
+        'Very Spicy': 'bg-rose-100 text-rose-800 border-rose-200'
     };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto card-base">
                 <div className="relative">
                     {/* Header */}
-                    <div className="flex justify-between items-center p-6 border-b">
-                        <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
+                    <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                        <div>
+                            <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Signature Dish</p>
+                            <h2 className="text-3xl font-bold text-gray-900">{product.name}</h2>
+                        </div>
                         <button
                             onClick={onClose}
                             className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -859,7 +868,7 @@ const ProductModal: React.FC<{
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Images */}
                             <div className="space-y-4">
-                                <div className="rounded-xl overflow-hidden bg-gray-100">
+                                <div className="rounded-2xl overflow-hidden bg-gray-100">
                                     <img
                                         src={product.imageUrls[selectedImage] || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop'}
                                         alt={product.name}
@@ -871,7 +880,7 @@ const ProductModal: React.FC<{
                                         <button
                                             key={index}
                                             onClick={() => setSelectedImage(index)}
-                                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-red-500' : 'border-gray-200'
+                                            className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 ${selectedImage === index ? 'border-red-500' : 'border-gray-200'
                                                 }`}
                                         >
                                             <img
@@ -897,7 +906,7 @@ const ProductModal: React.FC<{
 
                                 {/* Category and Spice Level */}
                                 <div className="flex gap-3">
-                                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium capitalize">
+                                    <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-medium capitalize">
                                         {product.category}
                                     </span>
                                     {product.spiceLevel && (
@@ -1062,11 +1071,11 @@ const Cart: React.FC<CartProps> = ({
     if (paymentSuccess) {
         return (
             <div className="max-w-2xl mx-auto text-center py-16">
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                <div className="card-base p-8">
                     <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment Successful!</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment confirmed</h2>
                     <p className="text-gray-600 mb-6">
-                        Your order has been confirmed and will be delivered soon.
+                        Your order is locked in and already in motion.
                     </p>
                     <div className="animate-pulse text-sm text-gray-500">
                         Redirecting to orders...
@@ -1082,23 +1091,23 @@ const Cart: React.FC<CartProps> = ({
             <div className="max-w-2xl mx-auto">
                 <button
                     onClick={() => setCurrentOrder(null)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-red-500 mb-6 transition"
+                    className="flex items-center gap-2 text-gray-600 hover-brand-text mb-6 transition"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back to Cart
                 </button>
 
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                <div className="card-base p-8">
                     <div className="text-center mb-6">
                         <CreditCard className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Payment</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete payment</h2>
                         <p className="text-gray-600">
-                            Please complete the payment to confirm your order
+                            Finish the payment to seal your order.
                         </p>
                     </div>
 
                     {/* Order Summary */}
-                    <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                    <div className="bg-gray-50 rounded-2xl p-6 mb-6">
                         <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
@@ -1121,7 +1130,7 @@ const Cart: React.FC<CartProps> = ({
 
                     <button
                         onClick={() => setCurrentOrder(null)}
-                        className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl hover:border-red-500 hover:text-red-500 transition font-semibold mt-3"
+                        className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl hover-brand-text hover-brand-soft transition font-semibold mt-3"
                     >
                         Cancel Payment
                     </button>
@@ -1136,12 +1145,12 @@ const Cart: React.FC<CartProps> = ({
             <div className="text-center py-16">
                 <ShoppingCart className="w-24 h-24 mx-auto text-gray-300 mb-6" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h3>
-                <p className="text-gray-600 mb-6">Add some delicious items to get started!</p>
+                <p className="text-gray-600 mb-6">Add one great dish and build from there.</p>
                 <button
                     onClick={onContinueShopping}
-                    className="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition font-semibold"
+                    className="btn-base press brand-bg hover-brand-bg px-8 py-3 rounded-lg transition font-semibold"
                 >
-                    Start Ordering
+                    Browse the Menu
                 </button>
             </div>
         );
@@ -1362,12 +1371,12 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
         <div className="space-y-8">
             <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                    <div className="p-3 bg-yellow-100 rounded-2xl">
-                        <Sparkles className="w-8 h-8 text-yellow-600" />
+                    <div className="p-3 bg-emerald-100 rounded-2xl">
+                        <Sparkles className="w-8 h-8 text-emerald-600" />
                     </div>
-                    <h2 className="text-4xl font-bold text-gray-900">AI Recommendations</h2>
+                    <h2 className="text-4xl font-bold text-gray-900">Taste Picks</h2>
                 </div>
-                <p className="text-gray-600 text-lg">Discover personalized food suggestions powered by AI</p>
+                <p className="text-gray-600 text-lg">Tell us the mood and we will line up a few strong options.</p>
             </div>
 
             {/* Search Bar */}
@@ -1379,14 +1388,14 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                        placeholder="Describe what you're craving... (e.g., 'spicy chicken under ₹200')"
-                        className="w-full pl-12 pr-32 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg"
+                        placeholder="Describe what you want (e.g., spicy chicken under Rs 200)"
+                        className="w-full pl-12 pr-32 py-4 border border-gray-200 rounded-2xl focus-brand text-lg"
                     />
                     <button
                         onClick={handleSearch}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition font-semibold"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-base press brand-bg hover-brand-bg px-6 py-2 rounded-xl transition font-semibold"
                     >
-                        Find Food
+                        Find Picks
                     </button>
                 </div>
             </div>
@@ -1395,7 +1404,7 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
             {loading ? (
                 <div className="text-center py-16">
                     <div className="animate-spin w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4" />
-                    <p className="text-gray-600">Finding the perfect recommendations for you...</p>
+                    <p className="text-gray-600">Pulling a short list you will actually want...</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1420,8 +1429,8 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
             {recommendations.length === 0 && !loading && (
                 <div className="text-center py-16">
                     <Sparkles className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">No recommendations yet</h3>
-                    <p className="text-gray-600">Try searching for something you're craving!</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No picks to show yet</h3>
+                    <p className="text-gray-600">Search once and your taste profile starts here.</p>
                 </div>
             )}
         </div>
@@ -1446,6 +1455,7 @@ export const AppUI: React.FC = () => {
     const [sortBy, setSortBy] = useState<'name' | 'price' | 'rating'>('name');
 
     const isAdmin = user?.role === 'admin';
+    const isLoggedIn = Boolean(user);
 
     useEffect(() => {
         if (user) {
@@ -1546,27 +1556,27 @@ export const AppUI: React.FC = () => {
     // Customer navigation items
     const customerNavItems = [
         { key: 'products', label: 'Menu', icon: null },
-        { key: 'recommendations', label: 'AI Picks', icon: Sparkles },
+        { key: 'recommendations', label: 'Taste Picks', icon: Sparkles },
         { key: 'orders', label: 'Orders', icon: Package },
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="craveo-app">
             {/* Header */}
-            <header className="bg-white shadow-sm sticky top-0 z-40 border-b">
+            <header className="nav-blur sticky top-0 z-40">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-linear-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+                            <div className="w-10 h-10 logo-mark rounded-xl flex items-center justify-center shadow-sm">
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
-                            <h1 className="text-2xl font-bold bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
                                 Craveo
                             </h1>
                             {isAdmin && (
-                                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                    ADMIN
+                                <span className="chip brand-soft">
+                                    Admin
                                 </span>
                             )}
                         </div>
@@ -1580,9 +1590,9 @@ export const AppUI: React.FC = () => {
                                         <button
                                             key={key}
                                             onClick={() => setView(key as any)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition ${view === key
-                                                ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                                                : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
+                                            className={`btn-base press flex items-center gap-2 px-4 py-2 rounded-xl transition ${view === key
+                                                ? 'brand-bg'
+                                                : 'text-gray-600 hover-brand-text hover-brand-soft'
                                                 }`}
                                         >
                                             {Icon && <Icon className="w-4 h-4" />}
@@ -1597,9 +1607,9 @@ export const AppUI: React.FC = () => {
                                         <button
                                             key={key}
                                             onClick={() => setView(key as any)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition ${view === key
-                                                ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                                                : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
+                                            className={`btn-base press flex items-center gap-2 px-4 py-2 rounded-xl transition ${view === key
+                                                ? 'brand-bg'
+                                                : 'text-gray-600 hover-brand-text hover-brand-soft'
                                                 }`}
                                         >
                                             <Icon className="w-4 h-4" />
@@ -1613,9 +1623,9 @@ export const AppUI: React.FC = () => {
                             {!isAdmin && (
                                 <button
                                     onClick={() => setView('cart')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition relative ${view === 'cart'
-                                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
-                                        : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
+                                    className={`btn-base press flex items-center gap-2 px-4 py-2 rounded-xl transition relative ${view === 'cart'
+                                        ? 'brand-bg'
+                                        : 'text-gray-600 hover-brand-text hover-brand-soft'
                                         }`}
                                 >
                                     <ShoppingCart className="w-5 h-5" />
@@ -1631,16 +1641,16 @@ export const AppUI: React.FC = () => {
 
                         {/* User Menu */}
                         <div className="hidden md:flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-xl">
+                            <div className="flex items-center gap-2 bg-white/80 border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
                                 <User className="w-4 h-4 text-gray-600" />
-                                <span className="font-medium text-gray-700">{user.name }</span>
+                                <span className="font-medium text-gray-700">{user?.name || 'User'}</span>
                                 {isAdmin && (
                                     <Shield className="w-4 h-4 text-red-500" />
                                 )}
                             </div>
                             <button
                                 onClick={logout}
-                                className="flex items-center gap-2 text-gray-600 hover:text-red-500 transition font-medium"
+                                className="flex items-center gap-2 text-gray-600 hover-brand-text transition font-medium"
                             >
                                 <LogOut className="w-4 h-4" />
                                 Logout
@@ -1648,12 +1658,15 @@ export const AppUI: React.FC = () => {
                         </div>
 
                         {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
-                        >
-                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                        </button>
+                        <div className="md:hidden flex items-center">
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="p-2 rounded-xl border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 transition"
+                                aria-label="Toggle menu"
+                            >
+                                {mobileMenuOpen ? <X className="w-6 h-6 text-gray-700" /> : <Menu className="w-6 h-6 text-gray-700" />}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Mobile Navigation */}
@@ -1669,9 +1682,9 @@ export const AppUI: React.FC = () => {
                                         <button
                                             key={key}
                                             onClick={() => { setView(key as any); setMobileMenuOpen(false); }}
-                                            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium transition ${view === key
-                                                ? 'bg-red-500 text-white'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            className={`btn-base press flex items-center gap-3 w-full px-4 py-3 rounded-xl transition ${view === key
+                                                ? 'brand-bg'
+                                                : 'text-gray-600 hover-brand-soft'
                                                 }`}
                                         >
                                             {Icon && <Icon className="w-5 h-5" />}
@@ -1686,9 +1699,9 @@ export const AppUI: React.FC = () => {
                                         <button
                                             key={key}
                                             onClick={() => { setView(key as any); setMobileMenuOpen(false); }}
-                                            className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium transition ${view === key
-                                                ? 'bg-red-500 text-white'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            className={`btn-base press flex items-center gap-3 w-full px-4 py-3 rounded-xl transition ${view === key
+                                                ? 'brand-bg'
+                                                : 'text-gray-600 hover-brand-soft'
                                                 }`}
                                         >
                                             <Icon className="w-5 h-5" />
@@ -1701,14 +1714,14 @@ export const AppUI: React.FC = () => {
                             <div className="border-t pt-4 mt-4">
                                 <div className="flex items-center gap-3 px-4 py-2 text-gray-600">
                                     <User className="w-5 h-5" />
-                                    <span className="font-medium">{(user as any).name}</span>
+                                    <span className="font-medium">{user?.name || 'User'}</span>
                                     {isAdmin && (
                                         <Shield className="w-4 h-4 text-red-500" />
                                     )}
                                 </div>
                                 <button
                                     onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                    className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium transition"
+                                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover-brand-text hover-brand-soft rounded-xl font-medium transition"
                                 >
                                     <LogOut className="w-5 h-5" />
                                     Logout
@@ -1737,13 +1750,13 @@ export const AppUI: React.FC = () => {
                         {view === 'products' && (
                             <div className="space-y-8">
                                 {/* Hero Section */}
-                                <div className="text-center space-y-4">
+                                <div className="text-center space-y-4 fade-rise">
                                     <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-                                        Delicious Food,
-                                        <span className="bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"> Delivered</span>
+                                        Curated plates,
+                                        <span className="bg-linear-to-r from-red-500 to-orange-500 bg-clip-text text-transparent"> delivered on your time</span>
                                     </h1>
-                                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                                        Discover the best food from top restaurants near you
+                                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                                        Chef-led menus, honest ingredients, and a delivery window you can actually plan around.
                                     </p>
                                 </div>
 
@@ -1754,10 +1767,10 @@ export const AppUI: React.FC = () => {
                                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                         <input
                                             type="text"
-                                            placeholder="Search for dishes, cuisines, or restaurants..."
+                                            placeholder="Search by dish, flavor, or kitchen..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-sm"
+                                            className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus-brand shadow-sm input-base"
                                         />
                                     </div>
 
@@ -1769,7 +1782,7 @@ export const AppUI: React.FC = () => {
                                             <select
                                                 value={selectedCategory}
                                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                                className="border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                                className="border border-gray-200 rounded-xl px-4 py-2 focus-brand"
                                             >
                                                 {categories.map(category => (
                                                     <option key={category} value={category}>
@@ -1785,7 +1798,7 @@ export const AppUI: React.FC = () => {
                                             <select
                                                 value={sortBy}
                                                 onChange={(e) => setSortBy(e.target.value as any)}
-                                                className="border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                                className="border border-gray-200 rounded-xl px-4 py-2 focus-brand"
                                             >
                                                 <option value="name">Sort by Name</option>
                                                 <option value="price">Sort by Price</option>
@@ -1799,11 +1812,11 @@ export const AppUI: React.FC = () => {
                                 {loading ? (
                                     <div className="text-center py-16">
                                         <div className="animate-spin w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4" />
-                                        <p className="text-gray-600">Loading delicious options...</p>
+                                        <p className="text-gray-600">Sourcing today's menu...</p>
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="flex justify-between items-center mb-6">
+                                        <div className="flex justify-between items-center mb-6 fade-rise">
                                             <h2 className="text-2xl font-bold text-gray-900">
                                                 {selectedCategory === 'all' ? 'All Items' : selectedCategory}
                                                 <span className="text-gray-500 text-lg ml-2">({filteredProducts.length})</span>
@@ -1813,13 +1826,13 @@ export const AppUI: React.FC = () => {
                                         {filteredProducts.length === 0 ? (
                                             <div className="text-center py-16">
                                                 <Search className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                                                <h3 className="text-xl font-bold text-gray-900 mb-2">No items found</h3>
+                                                <h3 className="text-xl font-bold text-gray-900 mb-2">Nothing matched that search</h3>
                                                 <p className="text-gray-600">
-                                                    {searchTerm ? `No results for "${searchTerm}"` : 'No products available in this category'}
+                                                    {searchTerm ? `Try a shorter name or a flavor keyword.` : 'This category is taking a breather.'}
                                                 </p>
                                             </div>
                                         ) : (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 stagger">
                                                 {filteredProducts.map((product) => (
                                                     <ProductCard
                                                         key={product._id}
@@ -1849,23 +1862,23 @@ export const AppUI: React.FC = () => {
                             <div className="space-y-8">
                                 <div className="text-center">
                                     <h2 className="text-4xl font-bold text-gray-900 mb-4">Your Orders</h2>
-                                    <p className="text-gray-600 text-lg">Track your food journey</p>
+                                    <p className="text-gray-600 text-lg">Every order, neatly organized.</p>
                                 </div>
 
                                 {orders.length === 0 ? (
                                     <div className="text-center py-16">
                                         <Package className="w-24 h-24 mx-auto text-gray-300 mb-6" />
                                         <h3 className="text-2xl font-bold text-gray-900 mb-2">No orders yet</h3>
-                                        <p className="text-gray-600 mb-6">Your delicious food adventure awaits!</p>
+                                        <p className="text-gray-600 mb-6">Pick something you'd happily reorder.</p>
                                         <button
                                             onClick={() => setView('products')}
-                                            className="bg-red-500 text-white px-8 py-3 rounded-xl hover:bg-red-600 transition font-semibold"
+                                            className="btn-base press brand-bg hover-brand-bg px-8 py-3 rounded-xl transition font-semibold"
                                         >
-                                            Start Ordering
+                                            Browse the Menu
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
                                         {orders.map((order) => (
                                             <OrderCard key={order._id} order={order} />
                                         ))}
@@ -1876,10 +1889,12 @@ export const AppUI: React.FC = () => {
 
                         {/* Recommendations View */}
                         {view === 'recommendations' && (
-                            <Recommendations
-                                onAddToCart={addToCart}
-                                onViewDetails={handleViewDetails}
-                            />
+                            <div className="fade-rise">
+                                <Recommendations
+                                    onAddToCart={addToCart}
+                                    onViewDetails={handleViewDetails}
+                                />
+                            </div>
                         )}
                     </>
                 )}
@@ -1903,7 +1918,7 @@ export const AppUI: React.FC = () => {
                         <div>
                             <h3 className="text-2xl font-bold mb-4">Craveo</h3>
                             <p className="text-gray-400">
-                                Delivering happiness through delicious food experiences.
+                                A calm, premium way to order the food you actually want.
                             </p>
                         </div>
                         <div>
@@ -1941,6 +1956,9 @@ export const AppUI: React.FC = () => {
                     </div>
                 </div>
             </footer>
+            <AssistantChat isLoggedIn={isLoggedIn} />
         </div>
     );
 };
+
+

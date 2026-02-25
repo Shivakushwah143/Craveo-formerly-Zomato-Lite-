@@ -131,4 +131,11 @@ export const api = {
         if (limit) params.append('limit', limit.toString());
         return api.request(`/ai/recommendations?${params}`);
     },
+
+    // Assistant
+    assistantChat: (message: string, history?: Array<{ role: 'user' | 'assistant'; content: string }>) =>
+        api.request('/assistant/chat', {
+            method: 'POST',
+            body: JSON.stringify({ message, history }),
+        }),
 };
