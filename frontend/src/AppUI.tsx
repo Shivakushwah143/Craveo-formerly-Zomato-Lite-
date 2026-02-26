@@ -34,9 +34,7 @@ import {
     Eye,
     Edit,
     Trash2,
-    Upload,
-
-} from 'lucide-react';
+    Upload,} from 'lucide-react';
 import { api } from './api';
 import { useAuth } from './auth-context';
 import { AssistantChat } from './components/AssistantChat';
@@ -1631,7 +1629,8 @@ export const AppUI: React.FC = () => {
                                                 : 'text-gray-600 hover-brand-text hover-brand-soft'
                                                 }`}
                                         >
-                                            <Icon className="w-4 h-4" />
+                                            
+                                            {Icon ? <Icon className="w-4 h-4" /> : null}
                                             {label}
                                         </button>
                                     ))}
@@ -1720,7 +1719,7 @@ export const AppUI: React.FC = () => {
                                                 : 'text-gray-600 hover-brand-soft'
                                                 }`}
                                         >
-                                            <Icon className="w-5 h-5" />
+                                            {Icon ? <Icon className="w-4 h-4" /> : null}
                                             {label}
                                         </button>
                                     ))}
