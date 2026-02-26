@@ -38,7 +38,7 @@ import {
 
 } from 'lucide-react';
 import { api } from './api';
-import { useAuth } from './auth';
+import { useAuth } from './auth-context';
 import { AssistantChat } from './components/AssistantChat';
 // ============================================================================
 // TYPES
@@ -300,7 +300,7 @@ const ProductManagement: React.FC = () => {
         try {
             await api.deleteProduct(productId);
             setProducts(products.filter(p => p._id !== productId));
-        } catch (error) {
+        } catch  {
             alert('Failed to delete product');
         }
     };
@@ -357,13 +357,14 @@ const ProductManagement: React.FC = () => {
                 setShowProductForm(false);
                 setEditingProduct(null);
                 fetchProducts();
-            } catch (error) {
+            } catch  {
                 alert('Failed to save product');
             } finally {
                 setLoading(false);
             }
         };
 
+        type SpiceLevel = 'Mild' | 'Medium' | 'Spicy' | 'Very Spicy';
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                 <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -422,11 +423,12 @@ const ProductManagement: React.FC = () => {
                                 />
                             </div>
 
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Spice Level</label>
                                 <select
                                     value={formData.spiceLevel}
-                                    onChange={(e) => setFormData({ ...formData, spiceLevel: e.target.value as any })}
+                                    onChange={(e) => setFormData({ ...formData, spiceLevel: e.target.value as SpiceLevel })}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                 >
                                     <option value="Mild">Mild</option>
@@ -627,7 +629,7 @@ const OrderManagement: React.FC = () => {
 
     const fetchOrders = async () => {
         try {
-            const data = await api.getAllOrders(); // ✅ Now this endpoint exists
+            const data = await api.getAllOrders();
             setOrders(data.orders || []);
         } catch (error) {
             console.error('Failed to fetch orders:', error);
@@ -646,7 +648,7 @@ const OrderManagement: React.FC = () => {
         try {
             await api.updateOrderStatus(orderId, status); // ✅ Now this endpoint exists
             fetchOrders(); // Refresh orders
-        } catch (error) {
+        } catch  {
             alert('Failed to update order status');
         }
     };
@@ -706,8 +708,8 @@ const OrderManagement: React.FC = () => {
                                     <div className="border-t pt-4">
                                         <h4 className="font-semibold mb-2">Items:</h4>
                                         <div className="space-y-2">
-                                            {order.items.map((item, index) => (
-                                                <div key={index} className="flex justify-between text-sm">
+                                            {order.items.map((item) => (
+                                                <div key={item.productId} className="flex justify-between text-sm">
                                                     <span>{item.product?.name || `Product ${item.productId}`}</span>
                                                     <span>₹{item.price} x {item.quantity} = ₹{(item.price * item.quantity).toFixed(2)}</span>
                                                 </div>
@@ -1271,72 +1273,72 @@ const Cart: React.FC<CartProps> = ({
 
 
 const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
-  const statusColors: { [key: string]: string } = {
-    PLACED: 'bg-blue-100 text-blue-800 border-blue-200',
-    CONFIRMED: 'bg-purple-100 text-purple-800 border-purple-200',
-    PREPARING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    PICKED_UP: 'bg-orange-100 text-orange-800 border-orange-200',
-    DELIVERED: 'bg-green-100 text-green-800 border-green-200',
-    CANCELLED: 'bg-red-100 text-red-800 border-red-200',
-  };
+    const statusColors: { [key: string]: string } = {
+        PLACED: 'bg-blue-100 text-blue-800 border-blue-200',
+        CONFIRMED: 'bg-purple-100 text-purple-800 border-purple-200',
+        PREPARING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        PICKED_UP: 'bg-orange-100 text-orange-800 border-orange-200',
+        DELIVERED: 'bg-green-100 text-green-800 border-green-200',
+        CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+    };
 
-  const statusIcons: { [key: string]: React.ReactNode } = {
-    PLACED: <Clock className="w-4 h-4" />,
-    CONFIRMED: <ThumbsUp className="w-4 h-4" />,
-    PREPARING: <Clock className="w-4 h-4" />,
-    PICKED_UP: <Truck className="w-4 h-4" />,
-    DELIVERED: <CheckCircle className="w-4 h-4" />,
-    CANCELLED: <X className="w-4 h-4" />,
-  };
+    const statusIcons: { [key: string]: React.ReactNode } = {
+        PLACED: <Clock className="w-4 h-4" />,
+        CONFIRMED: <ThumbsUp className="w-4 h-4" />,
+        PREPARING: <Clock className="w-4 h-4" />,
+        PICKED_UP: <Truck className="w-4 h-4" />,
+        DELIVERED: <CheckCircle className="w-4 h-4" />,
+        CANCELLED: <X className="w-4 h-4" />,
+    };
 
-  // Check if order needs payment (PLACED status usually means payment pending)
-  const needsPayment = order.status === 'PLACED';
+    // Check if order needs payment (PLACED status usually means payment pending)
+    const needsPayment = order.status === 'PLACED';
 
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="font-bold text-lg text-gray-900">Order #{order._id.slice(-8).toUpperCase()}</h3>
-          <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleString()}</p>
+    return (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <h3 className="font-bold text-lg text-gray-900">Order #{order._id.slice(-8).toUpperCase()}</h3>
+                    <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleString()}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                    <span className={`${statusColors[order.status]} px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 border`}>
+                        {statusIcons[order.status]}
+                        {order.status.replace('_', ' ')}
+                    </span>
+                    {needsPayment && (
+                        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                            <CreditCard className="w-3 h-3" />
+                            Payment Pending
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            <div className="space-y-3 mb-4">
+                <div className="flex justify-between">
+                    <span className="text-gray-600">Items:</span>
+                    <span className="font-semibold">{order.items.length}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span className="text-gray-600">Total Amount:</span>
+                    <span className="font-bold text-red-500 text-lg">₹{order.totalAmount}</span>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-gray-600 pt-4 border-t">
+                <MapPin className="w-4 h-4" />
+                <span className="flex-1">{order.deliveryAddress}</span>
+            </div>
+
+            {order.estimatedDeliveryTime && (
+                <div className="flex items-center gap-2 text-sm text-blue-600 mt-2">
+                    <Clock className="w-4 h-4" />
+                    <span>Est. delivery: {new Date(order.estimatedDeliveryTime).toLocaleTimeString()}</span>
+                </div>
+            )}
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className={`${statusColors[order.status]} px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 border`}>
-            {statusIcons[order.status]}
-            {order.status.replace('_', ' ')}
-          </span>
-          {needsPayment && (
-            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <CreditCard className="w-3 h-3" />
-              Payment Pending
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-3 mb-4">
-        <div className="flex justify-between">
-          <span className="text-gray-600">Items:</span>
-          <span className="font-semibold">{order.items.length}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600">Total Amount:</span>
-          <span className="font-bold text-red-500 text-lg">₹{order.totalAmount}</span>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 text-sm text-gray-600 pt-4 border-t">
-        <MapPin className="w-4 h-4" />
-        <span className="flex-1">{order.deliveryAddress}</span>
-      </div>
-
-      {order.estimatedDeliveryTime && (
-        <div className="flex items-center gap-2 text-sm text-blue-600 mt-2">
-          <Clock className="w-4 h-4" />
-          <span>Est. delivery: {new Date(order.estimatedDeliveryTime).toLocaleTimeString()}</span>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 
@@ -1350,8 +1352,8 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
         try {
             const data = await api.getRecommendations(searchQuery, 6);
             setRecommendations(data.recommendations || []);
-        } catch (err) {
-            console.error('Failed to fetch recommendations:', err);
+        } catch  {
+            console.error('Failed to fetch recommendations:');
         } finally {
             setLoading(false);
         }
@@ -1387,7 +1389,11 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearch();
+                            }
+                        }}
                         placeholder="Describe what you want (e.g., spicy chicken under Rs 200)"
                         className="w-full pl-12 pr-32 py-4 border border-gray-200 rounded-2xl focus-brand text-lg"
                     />
@@ -1411,7 +1417,7 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
                     {recommendations.map((rec) => (
                         rec.product && (
                             <div key={rec.productId} className="relative">
-                                <div className="absolute top-4 right-4 z-10 bg-lineart-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
+                                <div className="absolute top-4 right-4 z-10 bg-linear-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg">
                                     <TrendingUp className="w-3 h-3" />
                                     {(rec.score * 100).toFixed(0)}% Match
                                 </div>
@@ -1442,7 +1448,12 @@ const Recommendations: React.FC<{ onAddToCart: (product: Product) => void; onVie
 // ============================================================================
 export const AppUI: React.FC = () => {
     const { user, logout } = useAuth();
-    const [view, setView] = useState<'products' | 'cart' | 'orders' | 'recommendations' | 'admin' | 'product-management' | 'order-management'>('products');
+    type View = 'products' | 'cart' | 'orders' | 'recommendations' | 'admin' | 'product-management' | 'order-management';
+    type SortBy = 'name' | 'price' | 'rating';
+    type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    type NavItem = { key: View; label: string; icon: IconType | null };
+
+    const [view, setView] = useState<View>('products');
     const [products, setProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -1452,7 +1463,7 @@ export const AppUI: React.FC = () => {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
-    const [sortBy, setSortBy] = useState<'name' | 'price' | 'rating'>('name');
+    const [sortBy, setSortBy] = useState<SortBy>('name');
 
     const isAdmin = user?.role === 'admin';
     const isLoggedIn = Boolean(user);
@@ -1508,21 +1519,19 @@ export const AppUI: React.FC = () => {
     };
 
     const handleCheckout = (orderId: string) => {
-        orderId
+        console.log('Checkout completed:', orderId); // or remove param if unused
         setCart([]);
         setView('orders');
         fetchOrders();
-
     };
 
-    
-    
+
     const handleViewDetails = (product: Product) => {
         setSelectedProduct(product);
         setIsProductModalOpen(true);
     };
 
-    
+
     // Get unique categories
     const categories = ['all', ...new Set(products.map(p => p.category))];
 
@@ -1547,18 +1556,27 @@ export const AppUI: React.FC = () => {
     const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     // Admin navigation items
-    const adminNavItems = [
+    const adminNavItems: NavItem[] = [
         { key: 'admin', label: 'Dashboard', icon: BarChart3 },
         { key: 'product-management', label: 'Products', icon: Package },
         { key: 'order-management', label: 'Orders', icon: ShoppingBag },
     ];
 
     // Customer navigation items
-    const customerNavItems = [
+    const customerNavItems: NavItem[] = [
         { key: 'products', label: 'Menu', icon: null },
         { key: 'recommendations', label: 'Taste Picks', icon: Sparkles },
         { key: 'orders', label: 'Orders', icon: Package },
     ];
+    const mobileCustomerNavItems: NavItem[] = [
+        ...customerNavItems,
+        { key: 'cart', label: `Cart (${cartItemCount})`, icon: ShoppingCart },
+    ];
+
+    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as SortBy;
+        setSortBy(value);
+    };
 
     return (
         <div className="craveo-app">
@@ -1581,6 +1599,7 @@ export const AppUI: React.FC = () => {
                             )}
                         </div>
 
+
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center gap-1">
                             {/* Customer Navigation */}
@@ -1589,7 +1608,7 @@ export const AppUI: React.FC = () => {
                                     {customerNavItems.map(({ key, label, icon: Icon }) => (
                                         <button
                                             key={key}
-                                            onClick={() => setView(key as any)}
+                                            onClick={() => setView(key)}
                                             className={`btn-base press flex items-center gap-2 px-4 py-2 rounded-xl transition ${view === key
                                                 ? 'brand-bg'
                                                 : 'text-gray-600 hover-brand-text hover-brand-soft'
@@ -1606,7 +1625,7 @@ export const AppUI: React.FC = () => {
                                     {adminNavItems.map(({ key, label, icon: Icon }) => (
                                         <button
                                             key={key}
-                                            onClick={() => setView(key as any)}
+                                            onClick={() => setView(key)}
                                             className={`btn-base press flex items-center gap-2 px-4 py-2 rounded-xl transition ${view === key
                                                 ? 'brand-bg'
                                                 : 'text-gray-600 hover-brand-text hover-brand-soft'
@@ -1675,13 +1694,10 @@ export const AppUI: React.FC = () => {
                             {/* Customer Mobile Navigation */}
                             {!isAdmin ? (
                                 <>
-                                    {[
-                                        ...customerNavItems,
-                                        { key: 'cart', label: `Cart (${cartItemCount})`, icon: ShoppingCart },
-                                    ].map(({ key, label, icon: Icon }) => (
+                                    {mobileCustomerNavItems.map(({ key, label, icon: Icon }) => (
                                         <button
                                             key={key}
-                                            onClick={() => { setView(key as any); setMobileMenuOpen(false); }}
+                                            onClick={() => { setView(key); setMobileMenuOpen(false); }}
                                             className={`btn-base press flex items-center gap-3 w-full px-4 py-3 rounded-xl transition ${view === key
                                                 ? 'brand-bg'
                                                 : 'text-gray-600 hover-brand-soft'
@@ -1698,7 +1714,7 @@ export const AppUI: React.FC = () => {
                                     {adminNavItems.map(({ key, label, icon: Icon }) => (
                                         <button
                                             key={key}
-                                            onClick={() => { setView(key as any); setMobileMenuOpen(false); }}
+                                            onClick={() => { setView(key); setMobileMenuOpen(false); }}
                                             className={`btn-base press flex items-center gap-3 w-full px-4 py-3 rounded-xl transition ${view === key
                                                 ? 'brand-bg'
                                                 : 'text-gray-600 hover-brand-soft'
@@ -1797,7 +1813,7 @@ export const AppUI: React.FC = () => {
                                             <SlidersHorizontal className="w-4 h-4 text-gray-600" />
                                             <select
                                                 value={sortBy}
-                                                onChange={(e) => setSortBy(e.target.value as any)}
+                                            onChange={handleSortChange}
                                                 className="border border-gray-200 rounded-xl px-4 py-2 focus-brand"
                                             >
                                                 <option value="name">Sort by Name</option>
@@ -1960,5 +1976,3 @@ export const AppUI: React.FC = () => {
         </div>
     );
 };
-
-

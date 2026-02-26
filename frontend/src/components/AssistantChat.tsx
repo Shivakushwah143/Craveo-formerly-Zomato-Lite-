@@ -98,8 +98,9 @@ export const AssistantChat: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn })
             const response = await api.assistantChat(userMessage.content, historyForRequest);
             const reply = (response?.reply as string) || 'I can help with the menu or your order. What do you need?';
             startTyping(reply);
-        } catch (err: any) {
-            setError(err?.message || 'Something went wrong. Try again in a moment.');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Something went wrong. Try again in a moment.';
+            setError(message);
             startTyping('I had a quick hiccup. Want to try that again?');
         } finally {
             setSending(false);

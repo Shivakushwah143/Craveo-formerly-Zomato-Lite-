@@ -14,6 +14,6 @@ export const loadRazorpay = (): Promise<boolean> => {
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
   }
 }

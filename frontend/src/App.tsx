@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { AuthenticateWithRedirectCallback, SignedIn, SignedOut, UserButton, useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { AuthenticateWithRedirectCallback, SignedIn, UserButton, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { AppUI } from './AppUI';
-import { AuthProvider, useAuth, AuthScreen } from './auth';
+import { AuthProvider, useAuth } from './auth-context';
+import { AuthScreen } from './auth';
 import { setTokenProvider } from './api';
 
 // ============================================================================

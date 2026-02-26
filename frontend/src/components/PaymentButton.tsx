@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CreditCard, Loader } from 'lucide-react';
 import { api } from '../api';
 import { loadRazorpay } from '../utils/razorpay';
-import { useAuth } from '../auth';
+import { useAuth } from '../auth-context';
 
 interface PaymentButtonProps {
   orderId: string;
@@ -10,6 +10,12 @@ interface PaymentButtonProps {
   currency?: string;
   onSuccess: () => void;
   onError: (error: string) => void;
+}
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({ 
@@ -41,7 +47,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         name: 'Zomato Lite',
         description: 'Food Order Payment',
         order_id: paymentData.orderId,
-        handler: async (response: any) => {
+        handler: async (response: RazorpayResponse) => {
           try {
             // Verify payment
             await api.verifyPayment(
@@ -51,7 +57,8 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
             );
             
             onSuccess();
-          } catch (error) {
+          } catch (err) {
+            console.error('Payment verification failed:', err);
             onError('Payment verification failed. Please contact support.');
           }
         },
@@ -71,8 +78,8 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
-    } catch (error) {
-      console.error('Payment error:', error);
+    } catch (err) {
+      console.error('Payment error:', err);
       onError('Failed to initialize payment. Please try again.');
     } finally {
       setLoading(false);
