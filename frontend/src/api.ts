@@ -2,7 +2,8 @@
 // API SERVICE
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://craveo-backend.onrender.com/api';
+// const API_BASE = import.meta.env.VITE_API_BASE || 'https://craveo-backend.onrender.com/api';
+const API_BASE =  'https://craveo-backend.onrender.com/api';
 
 type TokenProvider = (() => Promise<string | null>) | null;
 let tokenProvider: TokenProvider = null;
